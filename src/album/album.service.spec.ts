@@ -1,71 +1,54 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AlbumService } from './album.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { TypeOrmTestingConfig } from '../shared/testing-utils/typeorm-testing-config';
 import { AlbumEntity } from './album.entity';
-import { TrackEntity } from '../track/track.entity'; 
+import { AlbumService } from './album.service';
 
 describe('AlbumService', () => {
-  let service: AlbumService;
-  let albumRepository: Repository<AlbumEntity>;
-  let trackRepository: Repository<TrackEntity>; 
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AlbumService,
-        {
-          provide: getRepositoryToken(AlbumEntity),
-          useValue: {
-            create: jest.fn(),
-            save: jest.fn(),
-          },
-        },
-        {
-          provide: getRepositoryToken(TrackEntity),
-          useValue: {
-
-          },
-        },
-
-      ],
-    }).compile();
-
-    service = module.get<AlbumService>(AlbumService);
-    albumRepository = module.get<Repository<AlbumEntity>>(getRepositoryToken(AlbumEntity));
-    trackRepository = module.get<Repository<TrackEntity>>(getRepositoryToken(TrackEntity)); 
+    let service: AlbumService;
+    let repository: Repository<AlbumEntity>;
+  
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [...TypeOrmTestingConfig()],
+        providers: [AlbumService],
+      }).compile();
+  
+      service = module.get<AlbumService>(AlbumService);
+      repository = module.get<Repository<AlbumEntity>>(getRepositoryToken(AlbumEntity));
+    });
+  
+    it('should be defined', () => {
+      expect(service).toBeDefined();
+    });
+  
+    // Caso de prueba (i): Creación exitosa de un álbum
+    it('should create an album successfully', async () => {
+      const albumData: Partial<AlbumEntity> = {
+        name: 'New Album',
+        description: 'This is a new album',
+        cover: 'new_album_cover.jpg',
+        releaseDate: new Date(),
+      };
+  
+      jest.spyOn(repository, 'save').mockImplementationOnce(() => Promise.resolve(albumData as AlbumEntity));
+  
+      const result = await service.create(albumData as AlbumEntity);
+      expect(result).toEqual(albumData);
+    });
+  
+    // Caso de prueba (ii): Intento de creación de un álbum con descripción vacía
+    it('should throw an error when trying to create an album with an empty description', async () => {
+      const albumData: Partial<AlbumEntity> = {
+        name: 'New Album',
+        description: '',
+        cover: 'new_album_cover.jpg',
+        releaseDate: new Date(),
+      };
+  
+      jest.spyOn(repository, 'save').mockImplementationOnce(() => Promise.resolve(albumData as AlbumEntity));
+  
+      await expect(service.create(albumData as AlbumEntity)).rejects.toThrow();
+    });
   });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  // Caso de prueba (i): Creación exitosa de un álbum
-  it('should create an album successfully', async () => {
-    const albumData = {
-      name: 'Test Album',
-      description: 'A great album',
-      cover: 'cover.jpg',
-      releaseDate: new Date(),
-    };
-    jest.spyOn(albumRepository, 'create').mockImplementation(() => albumData as AlbumEntity);
-    jest.spyOn(albumRepository, 'save').mockResolvedValue(albumData as AlbumEntity);
-
-    await expect(service.create(albumData as any)).resolves.toEqual(albumData);
-  });
-
-  // Caso de prueba (ii): Intento de creación de un álbum con descripción vacía
-  it('should throw an error when creating an album with an empty description', async () => {
-    const albumData = {
-      name: 'Test Album',
-      description: '',
-      cover: 'cover.jpg',
-      releaseDate: new Date(),
-    };
-    
-    jest.spyOn(albumRepository, 'create').mockImplementation(() => albumData as AlbumEntity);
-    jest.spyOn(albumRepository, 'save').mockResolvedValue(albumData as AlbumEntity);
-
-    await expect(service.create(albumData as any)).rejects.toThrow();
-  });
-});

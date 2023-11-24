@@ -17,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     port: 5432,
     username: 'postgres',
     password: 'postgres',
-    database: 'museum',
+    database: 'Albums',
     entities: [AlbumEntity, TrackEntity, PerformerEntity],
     dropSchema: true,
     synchronize: true,
