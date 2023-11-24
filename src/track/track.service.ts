@@ -10,7 +10,7 @@ export class TrackService {
     @InjectRepository(TrackEntity)
     private trackRepository: Repository<TrackEntity>,
     @InjectRepository(AlbumEntity)
-    private albumRepository: Repository<AlbumEntity>
+    private albumRepository: Repository<AlbumEntity>,
   ) {}
 
   async create(albumId: string, trackData: Omit<TrackEntity, 'id' | 'album'>): Promise<TrackEntity> {

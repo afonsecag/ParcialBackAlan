@@ -8,9 +8,7 @@ import { TrackEntity } from '../track/track.entity';
 export class AlbumService {
   constructor(
     @InjectRepository(AlbumEntity)
-    private albumRepository: Repository<AlbumEntity>,
-    @InjectRepository(TrackEntity)
-    private trackRepository: Repository<TrackEntity>,
+    private albumRepository: Repository<AlbumEntity>
   ) {}
 
   async create(albumData: Partial<AlbumEntity>): Promise<AlbumEntity> {
