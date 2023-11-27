@@ -24,7 +24,7 @@ import {
   
     @ManyToMany(() => AlbumEntity, album => album.performers)
     @JoinTable({
-      name: 'album_performers', // Specifies the name of the join table if different from the default
+      name: 'album_performers', 
       joinColumn: {
         name: 'performer_id',
         referencedColumnName: 'id'
